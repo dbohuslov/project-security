@@ -20,10 +20,13 @@ import mcc.project.auth2.domain.CustomerFactory;
 import mcc.project.auth2.domain.Token;
 import mcc.project.auth2.util.JWTHelper;
 
+
 @RestController
 @RequestMapping("/token")
 public class TokenAPI {
 
+	String dataApiHost = "localhost:8080";
+	
 	//private static Key key = AuthFilter.key;	
 	public static Token appUserToken;
 	
@@ -85,10 +88,11 @@ public class TokenAPI {
 	}
 	
     private static Token createToken(String username) {
-    	String scopes = "com.mcc.project.data.api";
+    	String scopes = "mcc.project.auth2.api";
     	// special case for application user
     	if( username.equalsIgnoreCase("ApiClientApp")) {
-    		scopes = "com.mcc.project.data.api";
+    		scopes = "com.bah.mcc.api";
+
     	}
     	String token_string = JWTHelper.createToken(scopes);
     	
@@ -108,7 +112,13 @@ public class TokenAPI {
 	private Customer getCustomerByNameFromCustomerAPI(String username) {
 		try {
 
-			URL url = new URL("http://localhost:8080/api/customers/byname/" + username);
+			String apiHost= System.getenv("API_HOST");
+			if(apiHost == null) {
+				apiHost = this.dataApiHost;
+			}
+			URL url = new URL("http://" + apiHost + "/api/customers/byname/" + username);
+			
+			//URL url = new URL("http://localhost:8080/api/customers/byname/" + username);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Accept", "application/json");
@@ -140,3 +150,4 @@ public class TokenAPI {
 	}  	
 
 }    
+
